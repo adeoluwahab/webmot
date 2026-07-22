@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Webmot"
+version = "1.0.0"
+id = "artifacts/webmot"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21352
+
+[services.development]
+run = "pnpm --filter @workspace/webmot run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/webmot", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/webmot/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21352"
+BASE_PATH = "/"

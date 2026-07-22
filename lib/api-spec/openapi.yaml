@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API specification for Webmot - Random Quote Generator
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: quotes
+    description: Quote operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,83 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /quotes:
+    get:
+      operationId: listQuotes
+      tags: [quotes]
+      summary: List all quotes
+      description: Returns all quotes, optionally filtered by category
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter quotes by category slug
+      responses:
+        "200":
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quote"
+  /quotes/random:
+    get:
+      operationId: getRandomQuote
+      tags: [quotes]
+      summary: Get a random quote
+      description: Returns a single random quote, optionally from a specific category
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Restrict random selection to a specific category slug
+      responses:
+        "200":
+          description: A random quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+  /quotes/categories:
+    get:
+      operationId: listCategories
+      tags: [quotes]
+      summary: List all categories
+      description: Returns all distinct quote categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+  /quotes/{id}:
+    get:
+      operationId: getQuote
+      tags: [quotes]
+      summary: Get a quote by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+        "404":
+          description: Quote not found
 components:
   schemas:
     HealthStatus:
@@ -33,4 +112,41 @@ components:
           type: string
       required:
         - status
-
+    Quote:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        categoryLabel:
+          type: string
+        imageUrl:
+          type: string
+        imageAlt:
+          type: string
+      required:
+        - id
+        - text
+        - author
+        - category
+        - categoryLabel
+        - imageUrl
+        - imageAlt
+    Category:
+      type: object
+      properties:
+        slug:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+      required:
+        - slug
+        - label
+        - count
